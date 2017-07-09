@@ -1,10 +1,11 @@
  /*************************************************************************
-* File Name          : mbot_factory_firmware.ino
-* Author             : Ander, Mark Yan
-* Updated            : Ander, Mark Yan
-* Version            : V06.01.009
+* File Name          : mbot_FablabImperia_default_firmware
+* Original Author    : Ander, Mark Yan
+* Master Version     : V06.01.009
 * Date               : 21/06/2017
-* Description        : Firmware for Makeblock Electronic modules with Scratch.  
+* Customized by      : Fablab Imperia
+* Branch Version     : 0.1
+* Description        : Customized default firmware for mBot rover
 * License            : CC-BY-SA 3.0
 * Copyright (C) 2013 - 2017 Maker Works Technology Co., Ltd. All right reserved.
 * http://www.makeblock.cc/
@@ -60,7 +61,7 @@ Servo servo;
 #define BLUE_TOOTH      0
 #define IR_CONTROLER    1
 
-uint8_t high = 15;
+uint8_t high = 40;      //high value increased to enable smarter obstacle avoidance in modeB()
 uint8_t low  = 15;
 
 enum
