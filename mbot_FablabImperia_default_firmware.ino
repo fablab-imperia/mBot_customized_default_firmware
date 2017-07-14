@@ -4,7 +4,7 @@
 * Master Version     : V06.01.009
 * Date               : 21/06/2017
 * Customized by      : Fablab Imperia
-* Branch Version     : 0.1
+* Revision Version   : 0.1
 * Description        : Customized default firmware for mBot rover
 * License            : CC-BY-SA 3.0
 * Copyright (C) 2013 - 2017 Maker Works Technology Co., Ltd. All right reserved.
@@ -16,6 +16,7 @@
 
 MeRGBLed rgb(0,16);
 MeUltrasonicSensor ultr(PORT_3);
+MeLightSensor lightSensor(PORT_6);  //initialize light sensor
 MeLineFollower line(PORT_2);
 MeLEDMatrix ledMx;
 MeIR ir;
@@ -61,8 +62,11 @@ Servo servo;
 #define BLUE_TOOTH      0
 #define IR_CONTROLER    1
 
-uint8_t high = 40;      //high value increased to enable smarter obstacle avoidance in modeB()
+uint8_t high = 40;                //high value increased to enable smarter obstacle avoidance in modeB()
 uint8_t low  = 15;
+uint8_t light_start;              //registers light value at startup for further comparison
+unsigned long last_on = 0;        //last time front lights were set on
+const long interval = 3000;       //minimum time front lights stay on
 
 enum
 {
@@ -109,7 +113,8 @@ byte index = 0;
 byte dataLen;
 byte modulesLen=0;
 unsigned char prevc=0;
-String mVersion = "06.01.009";
+String mVersion = "Original: 06.01.009 - Customized version by Fablab Imperia rev. 0.1";    //as required
+
 
 boolean isAvailable = false;
 boolean isStart = false;
@@ -642,10 +647,21 @@ void modeB()
   delay(100);
 }
 
-void modeC()
+void modeC()    // Line Follower mode
 {
   uint8_t val;
+  uint8_t light_now;
+  unsigned long currentMillis = millis();
   val = line.readSensors();
+  light_now = lightSensor.read();
+  if(light_now<(light_start/2))     //if instant light value is under a certain level, front lights on
+  {
+      digitalWrite(12,HIGH);
+  } else if (currentMillis - last_on >= interval) {
+       last_on = currentMillis;
+      digitalWrite(12,LOW);
+  }
+  
   if(moveSpeed > 230)
   {
     moveSpeed=230;
@@ -1224,10 +1240,14 @@ void setup()
   delay(5);
   Stop();
   pinMode(13,OUTPUT);
+  pinMode(12,OUTPUT);
   pinMode(7,INPUT);
   digitalWrite(13,HIGH);
+  digitalWrite(12,HIGH);
   delay(300);
   digitalWrite(13,LOW);
+  digitalWrite(12,LOW);
+  light_start = lightSensor.read();
   rgb.reset(PORT_7,SLOT2);
   rgb.setColor(0,0,0);
   rgb.show();
